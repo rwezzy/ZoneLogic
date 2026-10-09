@@ -6,7 +6,7 @@ Feed one frame's detections at a time with its timestamp in seconds.
 from dataclasses import dataclass, field
 from itertools import count
 
-from .geometry import anchor_point, iou, overlap_ratio, point_in_polygon
+from .geometry import anchor_point, center_dist, iou, overlap_ratio, point_in_polygon
 
 
 @dataclass
@@ -55,11 +55,12 @@ class _Track:
 
 
 class Engine:
-    def __init__(self, zones, rules, match_iou=0.2, max_gap_s=1.0):
+    def __init__(self, zones, rules, match_iou=0.2, max_gap_s=1.5, max_center_dist=0.15):
         self.zones = {z.name: z for z in zones}
         self.rules = list(rules)
         self.match_iou = match_iou
         self.max_gap_s = max_gap_s
+        self.max_center_dist = max_center_dist  # fallback match when sampling is too sparse for IoU
         self.tracks = []
         self.events = []
         self._track_ids = count(1)
@@ -82,6 +83,14 @@ class Engine:
                 v = iou(k.box, d["box"])
                 if v >= best_iou:
                     best, best_iou = k, v
+            if best is None:  # no overlap: take the nearest same-class track, if close enough
+                best_d = self.max_center_dist
+                for k in self.tracks:
+                    if k.id in used or k.cls != d["cls"]:
+                        continue
+                    dist = center_dist(k.box, d["box"])
+                    if dist <= best_d:
+                        best, best_d = k, dist
             if best is None:
                 best = _Track(next(self._track_ids), d["cls"], d["box"], d["conf"], t)
                 self.tracks.append(best)

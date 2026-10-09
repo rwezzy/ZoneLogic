@@ -60,3 +60,15 @@ def test_overlap_anchor_catches_partial_entry():
     rule = Rule("r3", "waste", {"box"}, anchor="overlap", min_overlap=0.3, trigger="dwell", dwell_s=0.0)
     frames = [[det(0.42, 0.6, "box", s=0.2)]]  # right 0.12 of 0.2 width inside = 60%
     assert len(run(rule, frames)) == 1
+
+
+def test_sparse_sampling_still_tracks():
+    # 1 fps sidecar: box moves 0.12/step with width 0.1, so consecutive boxes have IoU 0.
+    frames = [[det(0.30 + 0.12 * i, 0.60)] for i in range(5)]
+    assert len(run(ENTER, frames, fps=1)) == 1
+
+
+def test_far_apart_objects_are_not_merged():
+    # Bottle disappears on the left, a different bottle appears far away inside the zone.
+    frames = [[det(0.05, 0.60)], [det(0.80, 0.60)]]
+    assert run(ENTER, frames, fps=1) == []

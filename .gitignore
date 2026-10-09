@@ -1,4 +1,4 @@
-.env
+﻿.env
 *.env
 .venv/
 __pycache__/
@@ -6,3 +6,5 @@ __pycache__/
 /config/
 secrets*
 .cursor/*.local*
+.pytest_cache/
+data/
