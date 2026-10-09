@@ -1,10 +1,9 @@
-# Plan (deadline 4:30 PM ET)
-- 09:35-10:30 Inspect Pack D via retrieval skills. GO/NO-GO: if captions thin, switch to Pack C.
-- 10:30-12:30 search + agent-qa wrapper, LLM spoken summary with clip/time citations.
-- 12:30-13:30 verifier wired in (confirmed/unconfirmed labels).
-- 13:30-14:30 web UI: ask box, speech output, keyboard clip stepping.
-- 14:30-15:00 deploy with /deploy-app-no-registry.
-- 15:00-15:45 record demo, README, screenshots, push.
-- 15:45 submit at tokensand.com/vastnyc/submit.
-Cut order: daily briefing, re-ingest comparison, UI polish.
-Rules: no outside video, no secrets in repo, no safety/crossing claims.
+# Plan (deadline 4:30 PM ET; engine built at 12:07)
+1. Inspect real YOLO sidecar boxes for a warehouse clip; test whether $YOLO_URL accepts a single frame.
+   Fallback for custom video: local yolo11s via ultralytics.
+2. Adapter: sidecar/endpoint -> {cls, conf, box normalized, t}. Engine stays source-independent.
+3. FastAPI + canvas polygon editor + incident list (class, rule, time, screenshot, resolve button).
+4. Demo A: warehouse clear-path zone (dwell rule). Demo B: staged bottle recording (enter rule).
+5. Use Cosmos caption for the incident segment as context; flag contradictions via crosscheck.
+6. Deploy with /deploy-app-no-registry, record demo, push, submit by 4:00.
+Cut order: webcam live mode, Cosmos context, sound, polish.

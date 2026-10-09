@@ -1,16 +1,17 @@
-# Narrate
+# ZoneLogic
 
-Voice-first, keyboard-navigable event history of a home camera for blind and low-vision users,
-built for the VAST Builders Challenge (NYC, 2026-10-09).
+Draw zones on camera footage, pick object classes, and get timestamped incident tickets with
+evidence when a rule is breached. One rule engine, two demo configurations:
+a clear-path zone (accessibility / egress) and a bottle-in-general-waste zone.
 
-Every spoken claim is cross-checked against YOLO detections for the cited clip. Claims the
-detections do not support are flagged "unconfirmed" aloud. Narrate never certifies safety.
+Built solo for the VAST Builders Challenge (NYC, 2026-10-09).
 
-Data: Pack D (neighborhood, `neighborhood_cam-1`). Fallback: Pack C (warehouse).
-Uses VAST retrieval skills, Cosmos3-Reason captions, YOLO11s detections, W&B serverless LLM.
-See docs/PLAN.md.
+This is a rule engine over detections, not a validated monitoring product. YOLO does not know
+what material a bottle is made of, and the clear-path zone does not measure wheelchair clearance.
 
 ## Layout
-- narrate/verifier.py  caption-claim vs detection cross-check (pure logic, tested)
-- tests/               pytest
-- docs/PLAN.md         schedule, scope, cut list
+- zonelogic/geometry.py   point/polygon/box math (normalized coordinates)
+- zonelogic/engine.py     tracker + enter/dwell rules, one event per entry (tested)
+- zonelogic/crosscheck.py compares caption claims with detections (to be extended)
+- tests/                  pytest
+- docs/PLAN.md            schedule and cut list

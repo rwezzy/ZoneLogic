@@ -1,4 +1,4 @@
-from narrate.verifier import verify_claim
+from zonelogic.crosscheck import verify_claim
 
 def test_confirmed():
     assert verify_claim("A person walks to the door", [{"class": "person", "confidence": .9}]).status == "confirmed"
