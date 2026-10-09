@@ -11,6 +11,12 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 FPS, DUR, SEG = 5, 20, 5.0
+SYNTHETIC_CAPTIONS = [  # made up, to exercise the caption cross-check in the UI
+    "Synthetic scene. A grey car drives toward the center of the frame while a person walks left.",
+    "Synthetic scene. There are no vehicles in the scene; a person walks along the bottom edge.",
+    "Synthetic scene. A person walks along the bottom edge of the frame.",
+    "Synthetic scene. A grey car leaves the frame to the right.",
+]
 
 
 def box(cx, cy, w, h):
@@ -59,7 +65,8 @@ def render_segments(c, video_dir, size=(640, 360), fps=10):
             cv2.putText(img, f"SYNTHETIC  t={t:4.1f}s", (10, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1)
             out.write(img)
         out.release()
-        segs.append({"t0": k * SEG, "duration": SEG, "video": f"videos/{name}"})
+        segs.append({"t0": k * SEG, "duration": SEG, "video": f"videos/{name}",
+                     "caption": SYNTHETIC_CAPTIONS[k % len(SYNTHETIC_CAPTIONS)]})
     return segs
 
 

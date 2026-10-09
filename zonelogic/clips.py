@@ -9,6 +9,7 @@ import os
 from dataclasses import asdict
 from pathlib import Path
 
+from .crosscheck import corroborate
 from .engine import Engine, Rule, Zone
 
 DATA_DIR = Path(os.environ.get("ZL_DATA_DIR", Path(__file__).resolve().parent.parent / "data" / "clips"))
@@ -35,12 +36,28 @@ def build(zones, rules):
     return zs, rs
 
 
+def segment_at(clip, t):
+    for s in clip.get("segments") or []:
+        if s["t0"] <= t < s["t0"] + s["duration"]:
+            return s
+    return None
+
+
 def evaluate(clip, zones, rules):
-    """Replay a clip's detections through a fresh engine; returns event dicts."""
+    """Replay a clip's detections through a fresh engine; returns event dicts.
+
+    When the segment has a Cosmos caption, each event carries it plus whether it agrees with YOLO.
+    """
     eng = Engine(*build(zones, rules))
     for f in sorted(clip["frames"], key=lambda f: f["t"]):
         eng.process(f["dets"], f["t"])
-    return [{**asdict(e), "clip_id": clip["id"]} for e in eng.events]
+    out = []
+    for e in eng.events:
+        seg = segment_at(clip, e.t) or {}
+        caption = seg.get("caption")
+        out.append({**asdict(e), "clip_id": clip["id"], "caption": caption,
+                    "cosmos": corroborate(e.cls, caption) if caption else None})
+    return out
 
 
 def evaluate_camera(camera_id, zones, rules):

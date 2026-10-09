@@ -72,3 +72,22 @@ def test_far_apart_objects_are_not_merged():
     # Bottle disappears on the left, a different bottle appears far away inside the zone.
     frames = [[det(0.05, 0.60)], [det(0.80, 0.60)]]
     assert run(ENTER, frames, fps=1) == []
+
+
+def test_footprint_catches_long_vehicle_that_bottom_center_misses():
+    zone = Zone("crosswalk", [(0.15, 0.70), (0.40, 0.70), (0.40, 0.85), (0.15, 0.85)])
+    truck = [[{"cls": "truck", "conf": 0.9, "box": [0.05, 0.40, 0.95, 0.80]}]] * 40  # 4 s at 10 fps
+    def fires(anchor):
+        r = Rule("r", "crosswalk", {"truck"}, trigger="dwell", dwell_s=3, anchor=anchor, min_overlap=0.2)
+        eng = Engine([zone], [r])
+        return sum(len(eng.process(d, i / 10)) for i, d in enumerate(truck))
+    assert fires("bottom") == 0     # bottom-center (0.5, 0.8) is right of the zone
+    assert fires("footprint") == 1  # the wheel strip spans the zone
+
+
+def test_footprint_ignores_vehicle_in_front_of_zone():
+    # Near-lane car occludes the zone in the image, but its wheels are below (in front of) it.
+    zone = Zone("crosswalk", [(0.15, 0.70), (0.40, 0.70), (0.40, 0.85), (0.15, 0.85)])
+    r = Rule("r", "crosswalk", {"car"}, trigger="dwell", dwell_s=0, anchor="footprint", min_overlap=0.2)
+    eng = Engine([zone], [r])
+    assert eng.process([{"cls": "car", "conf": 0.9, "box": [0.1, 0.6, 0.45, 0.97]}], 0.0) == []

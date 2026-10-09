@@ -42,6 +42,12 @@
   .tag { display:inline-block; padding:0 6px; border-radius:4px; background:var(--alert); color:#fff; font-size:12px; }
   .ticket.resolved .tag { background:var(--line); }
   .muted { color:var(--muted); }
+  .cosmos { margin-top:6px; font-size:12px; color:var(--muted); }
+  .cosmos .badge { display:inline-block; padding:0 6px; border-radius:4px; margin-right:4px; color:#04201c; font-weight:600; }
+  .cosmos.agrees .badge { background:var(--accent); }
+  .cosmos.contradicts .badge { background:#d29922; }
+  .cosmos.silent .badge { background:var(--line); color:var(--text); }
+  .cosmos .caption { display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
 </style>
 </head>
 <body>
@@ -99,6 +105,7 @@
       <label for="ruleAnchor">Counts as inside when</label>
       <select id="ruleAnchor">
         <option value="bottom">bottom-center of box is inside (ground contact)</option>
+        <option value="footprint">bottom strip of box overlaps zone by 20%+ (long vehicles)</option>
         <option value="overlap">at least 30% of box overlaps zone</option>
         <option value="center">box center is inside</option>
       </select>

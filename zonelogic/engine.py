@@ -6,7 +6,7 @@ Feed one frame's detections at a time with its timestamp in seconds.
 from dataclasses import dataclass, field
 from itertools import count
 
-from .geometry import anchor_point, center_dist, iou, overlap_ratio, point_in_polygon
+from .geometry import anchor_point, center_dist, footprint, iou, overlap_ratio, point_in_polygon
 
 
 @dataclass
@@ -23,8 +23,8 @@ class Rule:
     trigger: str = "enter"      # "enter": outside -> inside transition; "dwell": inside for dwell_s
     dwell_s: float = 0.0
     min_conf: float = 0.4
-    anchor: str = "bottom"      # "bottom" | "center" | "overlap"
-    min_overlap: float = 0.3    # used when anchor == "overlap"
+    anchor: str = "bottom"      # "bottom" | "center" | "overlap" | "footprint"
+    min_overlap: float = 0.3    # used when anchor is "overlap" or "footprint"
     action: str = "alert"       # label only; the app decides what to do
 
 
@@ -70,6 +70,8 @@ class Engine:
         poly = self.zones[rule.zone].polygon
         if rule.anchor == "overlap":
             return overlap_ratio(box, poly) >= rule.min_overlap
+        if rule.anchor == "footprint":  # long vehicles: one bottom-center point can miss the zone
+            return overlap_ratio(footprint(box), poly) >= rule.min_overlap
         return point_in_polygon(*anchor_point(box, rule.anchor), poly)
 
     def _associate(self, dets, t):

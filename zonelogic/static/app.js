@@ -170,7 +170,7 @@ $("addRule").onclick = () => {
   state.rules.push({
     id: `r${state.nextRule++}`, zone, classes, trigger: $("ruleTrigger").value,
     dwell_s: +$("ruleDwell").value || 0, anchor: $("ruleAnchor").value,
-    min_overlap: 0.3, min_conf: +$("ruleConf").value || 0,
+    min_overlap: $("ruleAnchor").value === "footprint" ? 0.2 : 0.3, min_conf: +$("ruleConf").value || 0,
   });
   renderLists();
 };
@@ -213,6 +213,7 @@ async function run(scope) {
 $("runClip").onclick = () => run("clip");
 $("runCamera").onclick = () => run("camera");
 
+const COSMOS_LABEL = { agrees: "Cosmos agrees", contradicts: "Cosmos disagrees", silent: "Cosmos does not mention it" };
 function renderIncidents() {
   const el = $("incidents");
   if (!state.events.length) { el.innerHTML = `<li class="muted">No incidents.</li>`; return; }
@@ -222,6 +223,8 @@ function renderIncidents() {
         <strong>${esc(e.cls)}</strong> ${e.trigger === "dwell" ? "stayed in" : "entered"} "${esc(e.zone)}"</div>
       <div class="meta">${esc(e.clip_id)} at ${e.t.toFixed(1)} s · confidence ${Math.round(e.conf * 100)}% · track ${e.track_id}</div>
       <div class="meta">${esc(e.ruleText)}</div>
+      ${e.caption ? `<div class="cosmos ${e.cosmos}"><span class="badge">${COSMOS_LABEL[e.cosmos]}</span>
+        <span class="caption">${esc(e.caption)}</span></div>` : ""}
       <div class="row"><button data-show="${i}">Show evidence</button>
         <button data-resolve="${i}">${e.status === "open" ? "Mark resolved" : "Reopen"}</button></div>
     </li>`).join("");

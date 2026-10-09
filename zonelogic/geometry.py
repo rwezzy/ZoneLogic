@@ -19,6 +19,12 @@ def anchor_point(box, anchor):
     return (x1 + x2) / 2, y2  # "bottom": where the object touches the floor
 
 
+def footprint(box, frac=0.15):
+    """Bottom strip of the box: roughly where wheels or feet meet the ground."""
+    x1, y1, x2, y2 = box
+    return [x1, y2 - (y2 - y1) * frac, x2, y2]
+
+
 def overlap_ratio(box, poly, grid=10):
     """Fraction of the box area inside the polygon, by sampling (handles concave zones)."""
     x1, y1, x2, y2 = box
